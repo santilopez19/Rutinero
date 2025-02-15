@@ -24,6 +24,7 @@ namespace Rutinero
 
             dgvRutina.Columns.Add("Codigo", "Código");
             dgvRutina.Columns.Add("Nombre", "Nombre");
+            dgvRutina.Columns.Add("Descripcion", "Descripción");
 
             Ejercicios.Columns.Add("Codigo", "Código");
             Ejercicios.Columns.Add("Nombre", "Nombre");
@@ -144,12 +145,23 @@ namespace Rutinero
                 return;
             }
 
-            // Obtener el código y nombre del ejercicio seleccionado
+            // Obtener el código, nombre y descripción del ejercicio seleccionado
             string codigo = cmbCodigo.SelectedItem.ToString();
             string nombre = cmbNombre.SelectedItem.ToString();
 
+            // Buscar la descripción en la grilla de ejercicios
+            string descripcion = "";
+            foreach (DataGridViewRow row in Ejercicios.Rows)
+            {
+                if (row.Cells["Codigo"].Value.ToString() == codigo)
+                {
+                    descripcion = row.Cells["Descripcion"].Value.ToString();
+                    break;
+                }
+            }
+
             // Agregar el ejercicio a la grilla de la rutina
-            dgvRutina.Rows.Add(codigo, nombre);
+            dgvRutina.Rows.Add(codigo, nombre, descripcion);
 
             // Limpiar la selección del ComboBox
             cmbCodigo.SelectedIndex = -1;
@@ -169,6 +181,11 @@ namespace Rutinero
             {
                 cmbCodigo.SelectedIndex = cmbNombre.SelectedIndex;
             }
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            CargarEjerciciosEnGrilla();
         }
     }
 }

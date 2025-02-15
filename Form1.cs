@@ -139,16 +139,69 @@ namespace Rutinero
         }
 
         private void GrillaEjercicios_CellContentClick(object sender, DataGridViewCellEventArgs e)
-        {
-
-            // Mostrar los datos del ejercicio seleccionado en los TextBox
+        { // Verificar que se haya hecho clic en una fila válida
             if (e.RowIndex >= 0)
             {
-                var fila = GrillaEjercicios.Rows[e.RowIndex];
-                txtCodigo.Text = fila.Cells[0].Value.ToString();
-                txtNombre.Text = fila.Cells[1].Value.ToString();
-                txtDescripcion.Text = fila.Cells[2].Value.ToString();
+                // Obtener la fila seleccionada
+                DataGridViewRow fila = GrillaEjercicios.Rows[e.RowIndex];
+
+                // Cargar los datos en los TextBox
+                txtCodigo.Text = fila.Cells["Codigo"].Value.ToString();
+                txtNombre.Text = fila.Cells["Nombre"].Value.ToString();
+                txtDescripcion.Text = fila.Cells["Descripcion"].Value.ToString();
             }
+        }
+
+        private void btnModificar_Click(object sender, EventArgs e)
+        {
+
+            // Verificar que se haya seleccionado una fila en la grilla
+            if (GrillaEjercicios.SelectedRows.Count == 0)
+            {
+                MessageBox.Show("Por favor, seleccione un ejercicio para modificar.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            // Obtener la fila seleccionada
+            DataGridViewRow fila = GrillaEjercicios.SelectedRows[0];
+
+            // Verificar que los campos no estén vacíos
+            if (string.IsNullOrWhiteSpace(txtNombre.Text) || string.IsNullOrWhiteSpace(txtDescripcion.Text))
+            {
+                MessageBox.Show("Por favor, complete todos los campos.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            // Actualizar la fila seleccionada con los nuevos datos
+            fila.Cells["Nombre"].Value = txtNombre.Text;
+            fila.Cells["Descripcion"].Value = txtDescripcion.Text;
+
+            // Guardar los cambios en el archivo
+            GuardarEjerciciosEnArchivo();
+
+            MessageBox.Show("Ejercicio modificado exitosamente.", "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+        private void GuardarEjerciciosEnArchivo()
+        {
+            // Crear una lista para almacenar los ejercicios
+            List<string> ejercicios = new List<string>();
+
+            // Recorrer las filas de la grilla
+            foreach (DataGridViewRow fila in GrillaEjercicios.Rows)
+            {
+                if (!fila.IsNewRow) // Ignorar la fila vacía al final
+                {
+                    string codigo = fila.Cells["Codigo"].Value.ToString();
+                    string nombre = fila.Cells["Nombre"].Value.ToString();
+                    string descripcion = fila.Cells["Descripcion"].Value.ToString();
+
+                    // Agregar el ejercicio a la lista
+                    ejercicios.Add($"{codigo}|{nombre}|{descripcion}");
+                }
+            }
+
+            // Guardar la lista en el archivo
+            File.WriteAllLines(archivoEjercicios, ejercicios);
         }
     }
 }
